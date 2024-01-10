@@ -1,1 +1,0 @@
-Demo plugin for ExpoAcustica 2023 Workshop
