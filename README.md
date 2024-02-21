@@ -1,4 +1,4 @@
-# Intro to audio plug-ins ExpoAcustica 2023
+# Intro to audio plug-ins ExpoAcustica
 
 ### Installation
 
