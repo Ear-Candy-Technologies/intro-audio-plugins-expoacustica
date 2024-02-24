@@ -9,16 +9,11 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "Gain.h"
-#include "Distortion.h"
 
 //==============================================================================
 /**
 */
 class DemoExpoAcusticaAudioProcessor  : public juce::AudioProcessor
-                            #if JucePlugin_Enable_ARA
-                             , public juce::AudioProcessorARAExtension
-                            #endif
 {
 public:
     //==============================================================================
@@ -61,12 +56,8 @@ public:
     juce::AudioProcessorValueTreeState apvts;
     juce::AudioProcessorValueTreeState::ParameterLayout createParameters();
 
-private:
-    Gain preGain;
-    Distortion dist;
-    Gain outGain;
 
-    
+private:
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (DemoExpoAcusticaAudioProcessor)
 };

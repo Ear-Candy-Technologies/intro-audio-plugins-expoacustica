@@ -20,6 +20,7 @@ DemoExpoAcusticaAudioProcessor::DemoExpoAcusticaAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), apvts(*this, nullptr, "Parameters", createParameters())
+
 #endif
 {
 }
@@ -31,13 +32,14 @@ DemoExpoAcusticaAudioProcessor::~DemoExpoAcusticaAudioProcessor()
 juce::AudioProcessorValueTreeState::ParameterLayout DemoExpoAcusticaAudioProcessor::createParameters()
 {
     juce::AudioProcessorValueTreeState::ParameterLayout parameters;
-
+    
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("preGain", 1), "preGain", 0.0f, 2.0f, 1.0f));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("distGain", 1), "distGain", 0.0f, 2.0f, 1.0f));
     parameters.add(std::make_unique<juce::AudioParameterFloat>(juce::ParameterID("outGain", 1), "outGain", 0.0f, 2.0f, 1.0f));
 
-    
+
     return parameters;
+    
 }
 
 //==============================================================================
@@ -143,13 +145,23 @@ bool DemoExpoAcusticaAudioProcessor::isBusesLayoutSupported (const BusesLayout& 
 
 void DemoExpoAcusticaAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
-    float inGainValue = apvts.getRawParameterValue("preGain")->load();
-    float distGainValue = apvts.getRawParameterValue("distGain")->load();
-    float outGainValue = apvts.getRawParameterValue("outGain")->load();
-    
-    preGain.process(buffer, inGainValue);
-    dist.process(buffer, distGainValue);
-    outGain.process(buffer, outGainValue);
+    float inGainParameter = *apvts.getRawParameterValue("preGain");
+    float inDistParameter = *apvts.getRawParameterValue("distGain");
+    float inOutParameter = *apvts.getRawParameterValue("outGain");
+    for (int channel = 0; channel < buffer.getNumChannels(); channel++)
+    {
+        for (int i = 0; i < buffer.getNumSamples(); i++)
+        {
+            auto inSample = buffer.getSample(channel, i);
+            float outSample = inSample * inGainParameter;
+            outSample = outSample * inDistParameter;
+            outSample = outSample - (powf(outSample,3.0f)/3.0f);
+            outSample = outSample * inOutParameter;
+            
+            buffer.setSample(channel, i, outSample);
+            
+        }
+    }
 }
 
 //==============================================================================
@@ -160,8 +172,8 @@ bool DemoExpoAcusticaAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* DemoExpoAcusticaAudioProcessor::createEditor()
 {
-//    return new DemoExpoAcusticaAudioProcessorEditor (*this);
-    return new juce::GenericAudioProcessorEditor (*this);
+    // return new DemoExpoAcusticaAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================
